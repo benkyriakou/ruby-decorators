@@ -13,24 +13,18 @@ module Annotation
 
   # Here we just directly evaluate this in the context of the current class instance.
   def annotate_instance_method(method_name, annotation)
-    __annotate_method(method_name, annotation)
+    __annotate_method(self, method_name, annotation)
   end
 
-  # Here we can abuse class_eval since singleton methods are instance methods on the singleton class.
+  # Here we must use the singleton as the context as singleton methods are instance methods on the singleton class.
   def annotate_class_method(method_name, annotation)
-    singleton_class.class_eval do
-      alias_method :"__annotated_#{method_name}", method_name
-
-      define_method method_name do
-        send(annotation) { send(:"__annotated_#{method_name}") }
-      end
-    end
+    __annotate_method(singleton_class, method_name, annotation)
   end
 
-  def __annotate_method(method_name, annotation)
-    alias_method :"__annotated_#{method_name}", method_name
+  def __annotate_method(context, method_name, annotation)
+    context.alias_method :"__annotated_#{method_name}", method_name
 
-    define_method method_name do
+    context .define_method method_name do
       send(annotation) { send(:"__annotated_#{method_name}") }
     end
   end
@@ -49,11 +43,10 @@ class SomeObject
     puts "bar"
   end
 
-  # Could allow this to be used anywhere with singleton_method_added...
   annotate_method :my_method, :hello
 
   def butts
-    puts "butts"
+    puts "buzz"
     yield
   end
 
