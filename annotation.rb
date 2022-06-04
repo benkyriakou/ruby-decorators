@@ -17,9 +17,12 @@ module Annotation
   end
 
   # Here we must use the singleton as the context as singleton methods are instance methods on the singleton class.
+  # We could also do this by wrapping the call in class << self but that is a bit gross.
   def annotate_class_method(method_name, annotation)
     __annotate_method(singleton_class, method_name, annotation)
   end
+
+  private
 
   def __annotate_method(context, method_name, annotation)
     context.alias_method :"__annotated_#{method_name}", method_name
