@@ -1,4 +1,17 @@
-require "pry-byebug"
+# frozen_string_literal: true
+
+# require "pry-byebug"
+#
+# trace = TracePoint.new(:end) do |tp|
+#   p tp.callee_id
+#   p [tp.lineno, tp.defined_class, tp.method_id, tp.event, tp.self]
+# end
+
+# We could instead abuse this and attach tracepoints to our code which then get lazily evaluated when a class that
+# extends Annotation invokes a method. We can then check if the class annotates that method and wrap the call (does
+# tracepoint allow us to do that or is it too late?)
+#
+# trace.enable
 
 module Annotation
   def annotate_method(method_name, annotation)
@@ -25,40 +38,14 @@ module Annotation
   private
 
   def __annotate_method(context, method_name, annotation)
+    unless context.instance_methods.include?(annotation)
+      raise ArgumentError, "#{annotation} is not a valid annotation"
+    end
+
     context.alias_method :"__annotated_#{method_name}", method_name
 
-    context .define_method method_name do
+    context.define_method method_name do
       send(annotation) { send(:"__annotated_#{method_name}") }
     end
   end
 end
-
-class SomeObject
-  extend Annotation
-
-  def self.hello
-    puts "hello"
-    yield
-    puts "world"
-  end
-
-  def self.my_method
-    puts "bar"
-  end
-
-  annotate_method :my_method, :hello
-
-  def butts
-    puts "buzz"
-    yield
-  end
-
-  def foo
-    puts "foo"
-  end
-
-  annotate_method :foo, :butts
-end
-
-SomeObject.my_method
-SomeObject.new.foo
