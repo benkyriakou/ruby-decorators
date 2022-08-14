@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Annotations::LazyAnnotation do
+RSpec.describe Decorators::LazyDecorator do
   subject(:base_class) do
     # @todo Find a nicer way of not getting overlaps between tests.
     #       Using class_eval doesn't seem to play nice with TracePoints.
@@ -35,20 +35,20 @@ RSpec.describe Annotations::LazyAnnotation do
     end
   end
 
-  context "annotated class" do
-    let(:annotated_class) do
+  context "decorated class" do
+    let(:decorated_class) do
       base_class
 
       class MyLazyClass
-        extend Annotations::LazyAnnotation
+        extend Decorators::LazyDecorator
 
-        annotate_method :bar, :test
+        decorate_method :bar, :test
 
         def self.test
           yield.upcase
         end
 
-        annotate_method :foo, :wrap
+        decorate_method :foo, :wrap
 
         def wrap
           ">>> #{yield} <<<"
@@ -59,26 +59,26 @@ RSpec.describe Annotations::LazyAnnotation do
     end
 
     describe "#bar" do
-      subject { annotated_class.bar }
+      subject { decorated_class.bar }
 
       it { is_expected.to eq("BAR") }
     end
 
     describe ".foo" do
-      subject { annotated_class.new.foo }
+      subject { decorated_class.new.foo }
 
       it { is_expected.to eq(">>> foo <<<") }
     end
   end
 
   context "annotating nonexistent class method" do
-    let(:annotated_class) do
+    let(:decorated_class) do
       base_class
 
       class MyLazyClass
-        extend Annotations::LazyAnnotation
+        extend Decorators::LazyDecorator
 
-        annotate_method :qux, :upcase
+        decorate_method :qux, :upcase
 
         def self.upcase
           yield.upcase
@@ -89,19 +89,19 @@ RSpec.describe Annotations::LazyAnnotation do
     end
 
     it "raises an exception" do
-      expect { annotated_class }.
+      expect { decorated_class }.
         to raise_error(ArgumentError, "qux is not a class or instance method")
     end
   end
 
   context "annotating nonexistent instance method" do
-    let(:annotated_class) do
+    let(:decorated_class) do
       base_class
 
       class MyLazyClass
-        extend Annotations::LazyAnnotation
+        extend Decorators::LazyDecorator
 
-        annotate_method :qux, :upcase
+        decorate_method :qux, :upcase
 
         def upcase
           yield.upcase
@@ -112,46 +112,46 @@ RSpec.describe Annotations::LazyAnnotation do
     end
 
     it "raises an exception" do
-      expect { annotated_class }.
+      expect { decorated_class }.
         to raise_error(ArgumentError, "qux is not a class or instance method")
     end
   end
 
-  context "applying nonexistent class method annotation" do
-    let(:annotated_class) do
+  context "applying nonexistent class method decorator" do
+    let(:decorated_class) do
       base_class
 
       class MyLazyClass
-        extend Annotations::LazyAnnotation
+        extend Decorators::LazyDecorator
 
-        annotate_method :bar, :upcase
+        decorate_method :bar, :upcase
       end
 
       MyLazyClass
     end
 
     it "raises an exception" do
-      expect { annotated_class }.
-        to raise_error(ArgumentError, "upcase is not a valid annotation")
+      expect { decorated_class }.
+        to raise_error(ArgumentError, "upcase is not a valid decorator")
     end
   end
 
-  context "applying nonexistent instance method annotation" do
-    subject(:annotated_class) do
+  context "applying nonexistent instance method decorator" do
+    subject(:decorated_class) do
       base_class
 
       class MyLazyClass
-        extend Annotations::LazyAnnotation
+        extend Decorators::LazyDecorator
 
-        annotate_method :foo, :upcase
+        decorate_method :foo, :upcase
       end
 
       MyLazyClass
     end
 
     it "raises an exception" do
-      expect { annotated_class }.
-        to raise_error(ArgumentError, "upcase is not a valid annotation")
+      expect { decorated_class }.
+        to raise_error(ArgumentError, "upcase is not a valid decorator")
     end
   end
 end
