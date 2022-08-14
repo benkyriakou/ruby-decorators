@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require "annotation"
-
-RSpec.describe Annotation do
+RSpec.describe Annotations::Annotation do
   subject(:base_class) do
     Class.new do
       def self.bar
@@ -32,7 +30,7 @@ RSpec.describe Annotation do
   context "annotated class" do
     subject(:annotated_class) do
       base_class.class_eval do
-        extend Annotation
+        extend Annotations::Annotation
 
         def self.upcase
           yield.upcase
@@ -66,7 +64,7 @@ RSpec.describe Annotation do
   context "annotating nonexistent class method" do
     subject(:annotated_class) do
       base_class.class_eval do
-        extend Annotation
+        extend Annotations::Annotation
 
         def self.upcase
           yield.upcase
@@ -86,7 +84,7 @@ RSpec.describe Annotation do
   context "annotating nonexistent instance method" do
     subject(:annotated_class) do
       base_class.class_eval do
-        extend Annotation
+        extend Annotations::Annotation
 
         def upcase
           yield.upcase
@@ -106,7 +104,7 @@ RSpec.describe Annotation do
   context "applying nonexistent class method annotation" do
     subject(:annotated_class) do
       base_class.class_eval do
-        extend Annotation
+        extend Annotations::Annotation
 
         annotate_method :bar, :upcase
       end
@@ -122,7 +120,7 @@ RSpec.describe Annotation do
   context "applying nonexistent instance method annotation" do
     subject(:annotated_class) do
       base_class.class_eval do
-        extend Annotation
+        extend Annotations::Annotation
 
         annotate_method :foo, :upcase
       end
