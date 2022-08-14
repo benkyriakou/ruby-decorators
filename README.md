@@ -1,4 +1,4 @@
-# ruby-annotations
+# ruby-decorators
 
 ## Disclaimer
 
