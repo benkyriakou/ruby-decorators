@@ -17,11 +17,6 @@ module Decorators
     def late_decorate_methods
       pending_decorators = @decorators.uniq
 
-      # This registry needs to be smarter to prevent infinite loops.
-      # - Store the decorators in some kind of class, where the decorator has a source and definition
-      # - Provide methods on the registry for adding these in an idempotent way
-      # - When processing the decorators, get pending decorators from the registry and process
-      # - Mark these as processed but keep refs so we don't re-register them
       pending_decorators.each do |pending_decorator|
         method_name = pending_decorator[:method_name]
         decorator = pending_decorator[:decorator]
